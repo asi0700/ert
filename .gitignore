@@ -1,0 +1,67 @@
+# Переменные окружения
+.env
+.env.local
+.env.*.local
+env.txt
+config.local
+
+# Секреты и ключи
+*.key
+*.pem
+*.pfx
+*.p12
+private_key*
+secret*
+token*
+credentials*
+
+# IDE и редакторы
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.classpath
+.c9/
+*.iml
+*.sublime-*
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Сборка и дистрибутив
+build/
+dist/
+out/
+target/
+*.jar
+*.zip
+
+# Логи
+logs/
+*.log
+
+# Кэш
+.cache/
+.pytest_cache/
+__pycache__/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Базы данных
+*.db
+*.sqlite
+*.sqlite3
+
+# Временные файлы
+*.tmp
+*.bak
+*.swp
